@@ -1,6 +1,7 @@
 import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { Colors } from "../../constants/colors";
+import dimensions from "../../utils/dimensions";
 
 const InstructionText = ({ children, style }) => {
     return (
@@ -13,8 +14,8 @@ const InstructionText = ({ children, style }) => {
 const styles = StyleSheet.create({
     instructionText: {
         fontFamily: 'openSans',
-        fontSize: 24,
-        color: Colors.accent500,
+        fontSize: dimensions.deviceWidth < 400 ? 20 : 24,
+        color: Platform.OS === "android" ?  "white" : Colors.accent500,
     },
 });
 export default InstructionText;

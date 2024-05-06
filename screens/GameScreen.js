@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Text, View, StyleSheet, Alert, FlatList } from "react-native";
+import {
+    Text,
+    View,
+    StyleSheet,
+    Alert,
+    FlatList,
+    ScrollView,
+} from "react-native";
 import Title from "../components/ui/Title";
 import NumberContainer from "../components/game/NumberContainer";
 import PrimaryButton from "../components/ui/PrimaryButton";
@@ -7,6 +14,8 @@ import Card from "../components/ui/Card";
 import InstructionText from "../components/ui/InstructionText";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import GuessLog from "../components/ui/GuessLog";
+import dimensions from "../utils/dimensions";
+import { KeyboardAvoidingView } from "react-native";
 
 function generateRandomNumber(min, max, skipNumber) {
     let randomNumber = Math.floor(Math.random() * (max - min) + min);
@@ -20,10 +29,13 @@ function generateRandomNumber(min, max, skipNumber) {
 let minNumber = 1;
 let maxNumber = 100;
 
-const GameScreen = ({ pickedNumber, onCorrectGuessHandler }) => {
+const GameScreen = ({ pickedNumber, onCorrectGuessHandler, metadata }) => {
     console.log("min: ", minNumber, " max: ", maxNumber);
     const [guessNumber, setGuessNumber] = useState(null);
     const [guessList, setGuessList] = useState([]);
+
+    const styles = getStyles(metadata);
+    const { isLandscape } = metadata;
 
     updateGuessList = (newGuessNumber) => {
         setGuessList((prevGuessList) => [...prevGuessList, newGuessNumber]);
@@ -84,14 +96,70 @@ const GameScreen = ({ pickedNumber, onCorrectGuessHandler }) => {
         return true;
     }
 
-    return (
+    const portraitLayout = (
         <View style={styles.container}>
-            <Title>Opponent's Guess</Title>
+            <View style={styles.title}>
+                <Title>Opponent's Guess</Title>
+            </View>
+
             <NumberContainer>{guessNumber}</NumberContainer>
             {renderAddAndSubtractButtons()}
             {renderGuessList()}
         </View>
     );
+
+    const landscapeLayout = (
+        <View style={styles.container}>
+            <View style={styles.title}>
+                <Title>Opponent's Guess</Title>
+            </View>
+            <View style={styles.landscapeViewContentView}>
+            <View
+                style={[
+                    styles.landscapeNumberAndButtonsSection,
+                    styles.landscapeContentSectionGeneric,
+                ]}
+            >
+                {renderNumberAndButtonsForLandscape()}
+                </View>
+                <View style={styles.landscapeContentSectionGeneric}>
+                    {renderGuessList()}
+                </View>
+            </View>
+        </View>
+    );
+
+    return <>{isLandscape ? landscapeLayout : portraitLayout}</>;
+
+    function renderNumberAndButtonsForLandscape() {
+        return (
+            <>
+                <View>
+                    <View style={styles.button}>
+                        <PrimaryButton
+                            onPressHandler={() => handleGuess("lower")}
+                        >
+                            <Ionicons
+                                name="remove"
+                                size={dimensions.deviceWidth < 400 ? 16 : 24}
+                            />
+                        </PrimaryButton>
+                    </View>
+                </View>
+                <NumberContainer metadata={metadata}>
+                    {guessNumber}
+                </NumberContainer>
+                <View style={styles.button}>
+                    <PrimaryButton onPressHandler={() => handleGuess("higher")}>
+                        <Ionicons
+                            name="add"
+                            size={dimensions.deviceWidth < 400 ? 16 : 24}
+                        />
+                    </PrimaryButton>
+                </View>
+            </>
+        );
+    }
 
     function renderGuessList() {
         return (
@@ -123,14 +191,20 @@ const GameScreen = ({ pickedNumber, onCorrectGuessHandler }) => {
                         <PrimaryButton
                             onPressHandler={() => handleGuess("lower")}
                         >
-                            <Ionicons name="remove" size={24} />
+                            <Ionicons
+                                name="remove"
+                                size={dimensions.deviceWidth < 400 ? 16 : 24}
+                            />
                         </PrimaryButton>
                     </View>
                     <View style={styles.button}>
                         <PrimaryButton
                             onPressHandler={() => handleGuess("higher")}
                         >
-                            <Ionicons name="add" size={24} />
+                            <Ionicons
+                                name="add"
+                                size={dimensions.deviceWidth < 400 ? 16 : 24}
+                            />
                         </PrimaryButton>
                     </View>
                 </View>
@@ -148,25 +222,41 @@ const GameScreen = ({ pickedNumber, onCorrectGuessHandler }) => {
     }
 };
 
-const styles = StyleSheet.create({
-    guessLogContainer: {
-        flex: 1,
-        marginVertical: 10,
-        paddingHorizontal: 26
-    },
-    instructionText: {
-        marginBottom: 12,
-    },
-    container: {
-        flex: 1,
-        padding: 24,
-    },
-    buttonContainer: {
-        flexDirection: "row",
-        gap: 12,
-    },
-    button: {},
-});
+const getStyles = ({ width, height }) =>
+    StyleSheet.create({
+        title: {
+            alignItems: "center",
+        },
+        guessLogContainer: {
+            flex: 1,
+            marginVertical: 10,
+            paddingHorizontal: 26,
+        },
+        instructionText: {
+            marginBottom: 12,
+        },
+        container: {
+            flex: 1,
+            padding: 24,
+        },
+        buttonContainer: {
+            flexDirection: "row",
+            gap: 12,
+        },
+        button: {},
+        landscapeViewContentView: {
+            flexDirection: "row",
+            flex: 1
+        },
+        landscapeContentSectionGeneric: {
+            flex: 1,
+        },
+        landscapeNumberAndButtonsSection: {
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "center",
+        },
+    });
 
 export default GameScreen;
 function resetMinMax() {

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Text, StyleSheet } from 'react-native'
 import { Colors } from '../../constants/colors'
+import dimensions from '../../utils/dimensions'
 
 const Title = ({children}) => {
   return (
@@ -11,7 +12,7 @@ const Title = ({children}) => {
 const styles = StyleSheet.create({
     title: {
         fontFamily: 'openSans-bold',
-        fontSize: 24,
+        fontSize: dimensions.deviceWidth < 400 ? 20 : 24,
         fontWeight: 'bold',
         color: 'white',
         textAlign: 'center',
